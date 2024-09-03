@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
 import { Circles } from "react-loader-spinner";
+import axios from "axios";
 
 const Home = () => {
   const [recipes, setRecipes] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [editRecipeId, setEditRecipeId] = useState(null);
+  const [recipeData, setRecipeData] = useState({
+    title: "",
+    ingredients: "",
+    instructions: "",
+    imageUrl: "",
+  });
 
   useEffect(() => {
     fetchRecipes();
@@ -23,6 +32,44 @@ const Home = () => {
     }
   };
 
+  // const handleEditClick = (recipe) => {
+  //   setEditMode(true);
+  //   setEditRecipeId(recipe._id);
+  //   setRecipeData(recipe);
+  // };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setRecipeData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await axios.put(
+        `https://server-ivym.onrender.com/api/recipe/${editRecipeId}`,
+        recipeData
+      );
+      setEditMode(false);
+      fetchRecipes();
+    } catch (error) {
+      console.error("Error editing recipe:", error);
+    }
+  };
+
+  // const deleteRecipe = async (id) => {
+  //   try {
+  //     await axios.delete(`https://server-ivym.onrender.com/api/recipe/${id}`);
+  //     setRecipes((prevRecipes) =>
+  //       prevRecipes.filter((recipe) => recipe._id !== id)
+  //     );
+  //   } catch (error) {
+  //     console.error("Error deleting recipe:", error);
+  //   }
+  // };
+
   return (
     <div className="container mx-auto p-4 mt-20">
       <div className="text-center my-8">
@@ -38,34 +85,87 @@ const Home = () => {
           recipes.map((recipe) => (
             <div
               key={recipe._id}
-              className="bg-white p-4 rounded-lg shadow-lg shadow-black hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:scale-105"
+              className="bg-white p-4 rounded-lg outline shadow-lg flex flex-col shadow-black hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:bg-gray-100"
             >
-              <h2 className="text-xl font-bold mb-2 text-blue-600">
-                {recipe.title}
-              </h2>
-              <img
-                src={recipe.imageUrl}
-                alt={recipe.title}
-                className="w-full h-48 object-cover rounded-lg mb-2"
-              />
-              <h3 className="text-lg font-semibold text-blue-600">
-                Ingredients:
-              </h3>
-              <ul className="list-disc list-inside">
-                {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index}>{ingredient}</li>
-                ))}
-              </ul>
-              <div className="mt-2">
-                <h3 className="text-lg font-semibold text-blue-600">
-                  Instructions:
-                </h3>
-                <ol className="list-decimal list-inside">
-                  {recipe.instructions.split("\n").map((step, index) => (
-                    <li key={index}>{step}</li>
-                  ))}
-                </ol>
-              </div>
+              {editMode && editRecipeId === recipe._id ? (
+                <>
+                  <input
+                    type="text"
+                    name="title"
+                    value={recipeData.title}
+                    onChange={handleEditChange}
+                    className="mb-2 p-2 border rounded"
+                  />
+                  <textarea
+                    name="ingredients"
+                    value={recipeData.ingredients}
+                    onChange={handleEditChange}
+                    className="mb-2 p-2 border rounded"
+                  />
+                  <textarea
+                    name="instructions"
+                    value={recipeData.instructions}
+                    onChange={handleEditChange}
+                    className="mb-2 p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    name="imageUrl"
+                    value={recipeData.imageUrl}
+                    onChange={handleEditChange}
+                    className="mb-2 p-2 border rounded"
+                  />
+                  <button
+                    className="border bg-blue-500 p-1.5 px-5 rounded-lg text-white text-lg hover:bg-blue-600"
+                    onClick={handleEditSubmit}
+                  >
+                    Save
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-xl font-bold mb-2 text-blue-600">
+                    {recipe.title}
+                  </h2>
+                  <img
+                    src={recipe.imageUrl}
+                    alt={recipe.title}
+                    className="w-full h-48 object-cover rounded-lg mb-2"
+                  />
+                  <h3 className="text-lg font-semibold text-blue-600">
+                    Ingredients:
+                  </h3>
+                  <ul className="list-disc list-inside">
+                    {recipe.ingredients.map((ingredient, index) => (
+                      <li key={index}>{ingredient}</li>
+                    ))}
+                  </ul>
+                  <div className="mt-2 mb-4">
+                    <h3 className="text-lg font-semibold text-blue-600">
+                      Instructions:
+                    </h3>
+                    <ol className="list-decimal list-inside">
+                      {recipe.instructions.split("\n").map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                  {/* <div className="flex mt-auto justify-between">
+                    <button
+                      className="border bg-blue-500 p-1.5 px-5 rounded-lg text-white text-lg hover:bg-blue-600"
+                      onClick={() => handleEditClick(recipe)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="border bg-red-500 p-1.5 px-5 rounded-lg text-white text-lg hover:bg-red-600"
+                      onClick={() => deleteRecipe(recipe._id)}
+                    >
+                      Delete
+                    </button>
+                  </div> */}
+                </>
+              )}
             </div>
           ))
         ) : (
