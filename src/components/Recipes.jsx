@@ -127,7 +127,7 @@ const Recipes = () => {
                   ))}
                 </ol>
               </div>
-              <div className="flex mt-auto justify-between">
+              {/* <div className="flex mt-auto justify-between">
                 <button
                   className="border bg-blue-500 p-1.5 px-5 rounded-lg text-white text-lg hover:bg-blue-600"
                   // onClick={() => handleEditClick(recipe)}
@@ -140,7 +140,7 @@ const Recipes = () => {
                 >
                   Delete
                 </button>
-              </div>
+              </div> */}
             </div>
           ))
         ) : (
